@@ -1,0 +1,131 @@
+<html lang="en">
+
+<head>
+    <title>Pumping Motors</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <style>
+        .card {
+            margin-bottom: 25px;
+            margin-left: 10px;
+            color: black;
+            text-decoration: none;
+        }
+
+        a {
+            color: #000000;
+            text-decoration: none;
+        }
+
+        a:hover,
+        a:focus {
+            color: #000000;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        nav {
+            color: cornflowerblue;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar ">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <h4>Pumping Motors</h4>
+            </div>
+        </div>
+    </nav>
+    <div id="mess" class="w3-panel w3-green">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>
+                <strong> {{ message }} </strong>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
+    </div>
+    <div align="center" id="result"></div>
+
+    <script>
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '605767296531110',
+                cookie: true,
+                xfbml: true,
+                version: 'v2.0'
+            });
+
+            FB.AppEvents.logPageView();
+
+        };
+
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        function sendTokenToServer() {
+            var access_token = FB.getAuthResponse()['accessToken'];
+            console.log(access_token)
+            console.log('Welcome!  Fetching your information.... ');
+            FB.api('/me', function (response) {
+                console.log('Successful login for: ' + response.name);
+                $.ajax({
+                    type: 'POST',
+                    url: '/fbconnect?state={{STATE}}',
+                    processData: false,
+                    data: access_token,
+                    contentType: 'application/octet-stream; charset=utf-8',
+                    success: function (result) {
+                        // Handle or verify the server response if necessary.
+                        if (result) {
+                            $('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
+                            setTimeout(function () {
+                                window.location.href = "/mainPage";
+                            }, 4000);
+                            $("button").css('display', 'none');
+                        } else {
+                            $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+    <button class="btn" style="margin-left:42%;margin-top: 2%">
+
+
+        <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+            <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+
+        </fb:login-button>
+
+
+    </button>
+</body>
+
+</html>
